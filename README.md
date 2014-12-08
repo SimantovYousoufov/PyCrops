@@ -6,6 +6,8 @@ An ImageCropping API
 ###What does PyCrops do?
 PyCrops will retrieve an image from the specified url, resize and, if requested, crop an image that it retrieves from a URL you specify to the dimensions you specify. It will then upload the altered file to an S3 bucket and return a url through which it can be accessed.
 
+The live version can be accessed at http://pycrops-live.elasticbeanstalk.com/ using the same route configuration as local.
+
 ###Environment Setup
 Set up a virtual environment with the following dependencies:
 - Django (pip install django): https://docs.djangoproject.com/en/1.7/topics/install/
