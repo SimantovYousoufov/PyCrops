@@ -13,8 +13,8 @@ import os
 
 
 # Request handler
-# Not necessary to check if key exists in S3 already - this can be done on the front end as the filename
-# and width/height a
+# Not necessary to check if key exists in S3 already - this can be done on the front end as the s3 bucket url with
+# the encoded filename can be determined on the front end
 @api_view(['GET'])
 def crop_handler(request, crop, encoded):
     decode = base64.b64decode(encoded).split('|')
