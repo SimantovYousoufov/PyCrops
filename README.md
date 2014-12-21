@@ -25,6 +25,9 @@ Set up a virtual environment with the following dependencies:
     ```
   - Install pillow: pip install pillow
 
+@TODO:
+- OpenCV, numPy
+
 ###Application Set up
 - Fill in MySQL database information in CroppingService/settings.py
   - The database currently isn't being utilized but I have plans for how to use it to help with image cropping in the future.
