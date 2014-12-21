@@ -83,6 +83,8 @@ def opencv_test(request):
     width = img.shape[1]
     height = img.shape[0]
 
+    orientation = 'portrait' if height > width else 'landscape'
+
     center = image_center(width, height)
 
     image_desired_data = {
@@ -92,15 +94,18 @@ def opencv_test(request):
 
     altered = alter_image(
         img, image_desired_data, center,
-        'portrait', 1
+        orientation, 1
     )
 
+    upload_to_s3 = s3_upload(altered, 'opencvtest', 'jpg')
+
     response = {
-        'width': width,
-        'height': height,
+        'status': 'Success',
+        'image_url': upload_to_s3
     }
 
-    return Response(altered, status=status.HTTP_200_OK)
+    return Response(response, status=status.HTTP_201_CREATED)
+
 
 def alter_image(image, image_desired_data, center, orientation, crop):
     if not int(crop) == 1:
@@ -110,7 +115,8 @@ def alter_image(image, image_desired_data, center, orientation, crop):
     if orientation == 'landscape':
         height = image_desired_data['height']
         # w/h = r
-        width = int(round(center['ratio']*height))
+        # width = int(round(center['ratio']*height))
+        width = image_desired_data['width']
 
         dimensions_desired = (width, height)
 
@@ -133,15 +139,18 @@ def alter_image(image, image_desired_data, center, orientation, crop):
     else:
         # For portrait
         width = image_desired_data['width']
-        height = int(round(center['ratio']*width))
+        # height = int(round(center['ratio']*width))
+        height = image_desired_data['height']
         dimensions_desired = (width, height)
         resized = resize(image, dimensions_desired)
         v_to_crop = (image_desired_data['height'] - height)/2
         box = (0, 0+v_to_crop, width, height-v_to_crop)
 
+        # Image cropping: [y1:y2, x1:x2] where *2>*1
         altered = resized[0+v_to_crop:height-v_to_crop, 0:width]
 
         response = {
+            'original_image': image.shape,
             'altered_shape': altered.shape,
             'resized_shape': resized.shape,
             'y1': 0+v_to_crop,
@@ -271,7 +280,7 @@ def s3_upload(image, encoded, format):
     # Need to convert PIL file like object to a Django File Object
     # file = SimpleUploadedFile(image, encoded + '.' + format, format)
     image_io = StringIO.StringIO()
-    image.save(image_io, format=format)
+    # image.save(image_io, format=format)
 
     file = InMemoryUploadedFile(
         image_io, None, encoded+'.'+format,
